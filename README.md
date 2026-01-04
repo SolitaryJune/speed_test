@@ -31,7 +31,7 @@
 如果您在中国大陆，可以使用加速站点下载脚本：
 
 ```bash
-wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/build_and_run_docker.sh
+wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
 chmod +x build_and_run_docker.sh
 ./build_and_run_docker.sh
 ```
@@ -39,7 +39,7 @@ chmod +x build_and_run_docker.sh
 或者使用curl：
 
 ```bash
-curl -O https://git.gushao.club/https://github.com/SolitaryJune/speed_test/build_and_run_docker.sh
+curl -O https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
 chmod +x build_and_run_docker.sh
 ./build_and_run_docker.sh
 ```
