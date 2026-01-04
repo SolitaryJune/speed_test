@@ -1,6 +1,2 @@
-# 根据您的应用需求添加Python包
-# 这里是一些常用的包示例
+# 实际需要的Python包
 requests
-numpy
-pandas
-flask
