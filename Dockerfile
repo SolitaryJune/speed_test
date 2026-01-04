@@ -20,4 +20,4 @@ EXPOSE 8000
 ENV NAME World
 
 # 运行应用
-CMD ["python", "speed_test_limited.py"]
+CMD ["python", "speedtest.py"]
