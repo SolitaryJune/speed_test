@@ -26,25 +26,43 @@
 - 运行容器并设置为开机自启
 - 容器会在系统启动时自动运行
 
-### 2. 直接构建（使用默认参数）
+### 2. 使用加速站点下载脚本（Debian系统）
+
+如果您在中国大陆，可以使用加速站点下载脚本：
+
+```bash
+wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/build_and_run_docker.sh
+chmod +x build_and_run_docker.sh
+./build_and_run_docker.sh
+```
+
+或者使用curl：
+
+```bash
+curl -O https://git.gushao.club/https://github.com/SolitaryJune/speed_test/build_and_run_docker.sh
+chmod +x build_and_run_docker.sh
+./build_and_run_docker.sh
+```
+
+### 3. 直接构建（使用默认参数）
 
 ```bash
 ./build_docker.sh
 ```
 
-### 3. 指定镜像名称和标签
+### 4. 指定镜像名称和标签
 
 ```bash
 ./build_docker.sh -n myapp -t v1.0
 ```
 
-### 4. 使用构建参数
+### 5. 使用构建参数
 
 ```bash
 ./build_docker.sh -n myapp -t v1.0 -b "ARG1=value1" -b "ARG2=value2"
 ```
 
-### 5. 查看帮助信息
+### 6. 查看帮助信息
 
 ```bash
 ./build_docker.sh -h
