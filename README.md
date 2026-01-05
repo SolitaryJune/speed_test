@@ -53,7 +53,7 @@ chmod +x build_and_run_docker.sh
 
 ### 2. 运行测速容器
 
-脚本运行后，会自动下载仓库中的 `Dockerfile` 和 `speed_test_limited.py`，然后构建 Docker 镜像，并运行测速。
+脚本运行后，会自动下载所需的 `Dockerfile` 和 `speed_test_limited.py` 等文件，然后构建 Docker 镜像，并运行测速。脚本会在运行结束后自动清理下载的临时文件。
 
 您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。
 
