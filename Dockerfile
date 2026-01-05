@@ -1,10 +1,17 @@
-FROM python:3.9-alpine
 
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim-buster
+
+# Set the working directory in the container
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the new speed test script into the container at /app
+COPY speed_test_limited.py .
 
-COPY speed_test_unlimited.py .
+# Install any needed packages specified in requirements.txt
+# For this simple script, we only need 'requests'
+RUN pip install requests
 
-CMD ["python", "speed_test_unlimited.py"]
+# Use ENTRYPOINT to ensure arguments are passed to the script
+ENTRYPOINT ["python", "speed_test_limited.py"]
+
