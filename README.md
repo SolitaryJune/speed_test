@@ -16,40 +16,46 @@
 | `speed_test_limited.py` | 核心 Python 脚本，包含多线程下载和基于令牌桶算法的限速逻辑。 |
 | `Dockerfile` | Docker 镜像构建文件，基于 `python:3.9-slim-buster`。 |
 | `.dockerignore` | Docker 忽略文件，用于优化镜像构建速度。 |
-| `run.sh` | **一键部署脚本**，用于简化 Docker 镜像的构建和容器的运行。 |
+| `build_and_run_docker.sh` | **终极一键部署脚本**，用于下载仓库文件、构建 Docker 镜像和运行容器。 |
 
-## 一键部署和运行 (`run.sh`)
+## 终极一键部署和运行 (`build_and_run_docker.sh`)
 
-`run.sh` 脚本简化了 Docker 的操作流程。
+这个脚本将自动完成下载文件、构建镜像和运行容器的所有步骤。
 
-### 1. 克隆仓库
+### 1. 下载脚本
 
-首先，将本仓库克隆到您的本地：
+您可以通过以下方式下载并运行脚本。
 
-```bash
-git clone https://github.com/SolitaryJune/speed_test.git
-cd speed_test
-```
-
-### 2. 赋予脚本权限
-
-确保 `run.sh` 脚本具有可执行权限：
+**使用标准 GitHub 链接：**
 
 ```bash
-chmod +x run.sh
+wget https://raw.githubusercontent.com/SolitaryJune/speed_test/main/build_and_run_docker.sh
+chmod +x build_and_run_docker.sh
+./build_and_run_docker.sh [可选参数]
 ```
 
-### 3. 构建 Docker 镜像
+**使用加速站点下载脚本（例如，Debian系统）：**
 
-使用 `build` 命令构建 Docker 镜像。镜像名称默认为 `speed-tester-limited`。
+如果您在中国大陆，可以使用加速站点下载脚本：
 
 ```bash
-./run.sh build
+wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
+chmod +x build_and_run_docker.sh
+./build_and_run_docker.sh [可选参数]
+```
+或者使用 `curl`：
+
+```bash
+curl -O https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
+chmod +x build_and_run_docker.sh
+./build_and_run_docker.sh [可选参数]
 ```
 
-### 4. 运行测速容器
+### 2. 运行测速容器
 
-使用 `run` 命令运行容器。您可以通过在 `run` 命令后添加参数来配置测速：
+脚本运行后，会自动下载仓库中的 `Dockerfile` 和 `speed_test_limited.py`，然后构建 Docker 镜像，并运行测速。
+
+您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。
 
 | 参数 | 描述 | 默认值 | 示例 |
 | :--- | :--- | :--- | :--- |
@@ -61,23 +67,17 @@ chmod +x run.sh
 **示例 1: 使用默认设置运行 (限速 100.0 Mbps)**
 
 ```bash
-./run.sh run
+./build_and_run_docker.sh
 ```
 
 **示例 2: 设置 8 线程，运行 30 秒，限速 5 Mbps**
 
 ```bash
-./run.sh run --threads 8 --duration 30 --speed-limit 5
-```
-
-**示例 3: 运行帮助信息**
-
-```bash
-./run.sh run --help
+./build_and_run_docker.sh --threads 8 --duration 30 --speed-limit 5
 ```
 
 ## 注意事项
 
-*   `run.sh` 脚本在执行 `docker build` 和 `docker run` 时会使用 `sudo` 命令，请确保您的用户有权限执行 `sudo docker` 命令。
+*   `build_and_run_docker.sh` 脚本在执行 `docker build` 和 `docker run` 时会使用 `sudo` 命令，请确保您的用户有权限执行 `sudo docker` 命令。
 *   限速功能基于 Python 的 `time.sleep()` 实现，在多线程和不同操作系统环境下，实际限速精度可能略有偏差。
 *   如果遇到下载中断问题，请尝试更换 `--url` 或检查本地网络环境。
