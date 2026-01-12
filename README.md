@@ -53,27 +53,26 @@ chmod +x build_and_run_docker.sh
 
 ### 2. 运行测速容器
 
-脚本运行后，会自动下载所需的 `Dockerfile` 和 `speed_test_limited.py` 等文件，然后构建 Docker 镜像，并运行测速。脚本会在运行结束后自动清理下载的临时文件。
+脚本运行后，会自动下载所需的 `Dockerfile` 和 `speed_test_limited.py` 等文件，然后构建 Docker 镜像，并运行测速。测速将持续进行，直到您手动中断（例如，按 `Ctrl+C`）。脚本会在运行结束后自动清理下载的临时文件。
 
-您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。
+您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。请注意，`--duration` 参数已被移除，测速将持续运行。您可以通过 `--urls` 参数提供一个或多个测速源URL。
 
 | 参数 | 描述 | 默认值 | 示例 |
 | :--- | :--- | :--- | :--- |
-| `--url` | 测速源 URL | 默认测试文件 URL | `--url https://example.com/file.zip` |
+| `--urls` | 测速源 URL(s) | 默认使用 `shua.leyz.top` 提供的多个测速源 | `--urls https://example.com/file1.zip https://example.com/file2.zip` |
 | `--threads` | 并发下载线程数 | `4` | `--threads 8` |
-| `--duration` | 测速持续时间（秒） | `10` | `--duration 60` |
 | `--speed-limit` | 下载速度限制（Mbps） | `100.0` | `--speed-limit 50` |
 
-**示例 1: 使用默认设置运行 (限速 100.0 Mbps)**
+**示例 1: 使用默认设置运行 (默认测速源，限速 100.0 Mbps，持续运行)**
 
 ```bash
 ./build_and_run_docker.sh
 ```
 
-**示例 2: 设置 8 线程，运行 30 秒，限速 5 Mbps**
+**示例 2: 设置 8 线程，限速 5 Mbps，并指定自定义测速源，持续运行**
 
 ```bash
-./build_and_run_docker.sh --threads 8 --duration 30 --speed-limit 5
+./build_and_run_docker.sh --threads 8 --speed-limit 5 --urls https://example.com/file.zip
 ```
 
 ## 注意事项
