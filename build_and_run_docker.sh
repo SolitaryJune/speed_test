@@ -46,8 +46,8 @@ echo "--- Docker 镜像构建成功: ${IMAGE_NAME} ---"
 echo "--- 3. 运行 Docker 容器: ${IMAGE_NAME} ---"
 # 运行容器，并将所有参数传递给 Python 脚本
 # 使用 --rm 确保容器运行结束后自动删除
-# 传递给脚本的参数从 $1 开始，即脚本名后的所有参数
-sudo docker run --rm ${IMAGE_NAME} python3 speed_test_limited.py "$@"
+# 直接传递参数给容器，Dockerfile 中的 ENTRYPOINT 会处理它们
+sudo docker run --rm ${IMAGE_NAME} "$@"
 if [ $? -ne 0 ]; then
     echo "--- 错误: Docker 容器运行失败 ---"
     exit 1
