@@ -85,10 +85,10 @@ class SpeedTester:
                 time.sleep(0.1)
 
     def start_test(self):
-        print(f"Starting continuous speed test with {self.threads} threads...")
-        print(f"URLs will be automatically switched every 5MB of download per thread.")
+        print(f"Starting continuous speed test with {self.threads} threads...", flush=True)
+        print(f"URLs will be automatically switched every 5MB of download per thread.", flush=True)
         if self.rate_limiter:
-            print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec * 8 / (1024 * 1024):.2f} Mbps")
+            print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec * 8 / (1024 * 1024):.2f} Mbps", flush=True)
         
         thread_list = []
         for _ in range(self.threads):
@@ -110,7 +110,7 @@ class SpeedTester:
 
                 if time_diff > 0:
                     current_speed_mbps = (download_diff * 8) / (time_diff * 1024 * 1024)
-                    print(f"Current speed: {current_speed_mbps:.2f} Mbps")
+                    print(f"Current speed: {current_speed_mbps:.2f} Mbps", flush=True)
                 
                 last_total_downloaded = current_downloaded
                 last_time = current_time
