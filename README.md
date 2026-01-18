@@ -1,12 +1,13 @@
 # speed_test: Docker 化多线程限速测速工具
 
-本项目提供了一个基于 Python 的多线程测速工具，并将其打包为 Docker 容器，支持在启动时灵活配置线程数、测速时长和下载速度限制（限速）。
+本项目提供了一个基于 Python 的多线程测速工具，并将其打包为 Docker 容器，支持在启动时灵活配置线程数和下载速度限制（限速）。
 
 ## 核心功能
 
 *   **多线程下载：** 通过多线程并发下载，模拟高负载测速。
-*   **速度限制（限速）：** 支持通过命令行参数设置下载速度上限（单位：Mbps）。默认限速为 **100.0 Mbps**。
-*   **连接稳定性增强：** 增加了连接超时时间（30秒）和指数退避重试机制，以提高长时间下载的稳定性。
+*   **速度限制（限速）：** 支持通过命令行参数设置下载速度上限（单位：MB/s）。默认限速为 **10.0 MB/s**。
+*   **自动切换测速源：** 脚本会自动从内置的多个测速源中随机选择，并每下载 20MB 自动切换一次，以模拟真实的持续下载场景。
+*   **持续运行：** 测速将持续进行，直到手动停止容器。
 *   **Docker 化部署：** 提供 `Dockerfile` 和一键脚本，方便快速部署和运行。
 
 ## 文件说明
@@ -43,40 +44,43 @@ wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main
 chmod +x build_and_run_docker.sh
 ./build_and_run_docker.sh [可选参数]
 ```
-或者使用 `curl`：
-
-```bash
-curl -O https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
-chmod +x build_and_run_docker.sh
-./build_and_run_docker.sh [可选参数]
-```
 
 ### 2. 运行测速容器
 
 脚本运行后，会自动下载所需的 `Dockerfile` 和 `speed_test_limited.py` 等文件，然后构建 Docker 镜像，并在后台启动测速容器。脚本会在启动容器后立即退出，测速将在后台持续进行。
 
-您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。请注意，`--duration` 参数已被移除，测速将持续运行。您可以通过 `--urls` 参数提供一个或多个测速源URL。
+您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。
 
 | 参数 | 描述 | 默认值 | 示例 |
 | :--- | :--- | :--- | :--- |
-| `--urls` | 测速源 URL(s) | 默认使用 `shua.leyz.top` 提供的多个测速源 | `--urls https://example.com/file1.zip https://example.com/file2.zip` |
+| `--urls` | 测速源 URL(s) | 默认使用内置的多个测速源 | `--urls https://example.com/file1.zip` |
 | `--threads` | 并发下载线程数 | `4` | `--threads 8` |
-| `--speed-limit` | 下载速度限制（Mbps） | `100.0` | `--speed-limit 50` |
+| `--speed-limit` | 下载速度限制（MB/s） | `10.0` | `--speed-limit 5` |
 
-**示例 1: 使用默认设置运行 (默认测速源，限速 100.0 Mbps，持续运行)**
+**示例 1: 使用默认设置运行 (默认测速源，限速 10.0 MB/s，持续运行)**
 
 ```bash
 ./build_and_run_docker.sh
 ```
 
-**示例 2: 设置 8 线程，限速 5 Mbps，并指定自定义测速源，持续运行**
+**示例 2: 设置 8 线程，限速 5 MB/s，并指定自定义测速源，持续运行**
 
 ```bash
 ./build_and_run_docker.sh --threads 8 --speed-limit 5 --urls https://example.com/file.zip
 ```
 
+## 容器管理
+
+由于脚本运行后会立即退出，您可以使用以下 Docker 命令来管理后台的测速任务：
+
+*   **查看实时测速日志：**
+    `sudo docker logs -f speed-tester-instance`
+*   **停止测速任务：**
+    `sudo docker stop speed-tester-instance`
+*   **重新启动测速任务：**
+    `sudo docker start speed-tester-instance`
+
 ## 注意事项
 
 *   `build_and_run_docker.sh` 脚本在执行 `docker build` 和 `docker run` 时会使用 `sudo` 命令，请确保您的用户有权限执行 `sudo docker` 命令。
 *   限速功能基于 Python 的 `time.sleep()` 实现，在多线程和不同操作系统环境下，实际限速精度可能略有偏差。
-*   如果遇到下载中断问题，请尝试更换 `--url` 或检查本地网络环境。

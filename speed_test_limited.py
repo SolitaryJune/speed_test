@@ -44,7 +44,7 @@ class RateLimiter:
             return True
 
 class SpeedTester:
-    def __init__(self, urls, threads, speed_limit_mbps=None):
+    def __init__(self, urls, threads, speed_limit_mbs=None):
         self.urls = urls
         self.threads = threads
         self.total_downloaded = 0
@@ -52,8 +52,9 @@ class SpeedTester:
         self.lock = threading.Lock()
         self.running = True
         self.rate_limiter = None
-        if speed_limit_mbps and speed_limit_mbps > 0:
-            limit_bytes_per_sec = speed_limit_mbps * 1024 * 1024 / 8
+        if speed_limit_mbs and speed_limit_mbs > 0:
+            # 单位修改为 MB/s (Megabytes per second)
+            limit_bytes_per_sec = speed_limit_mbs * 1024 * 1024
             self.rate_limiter = RateLimiter(limit_bytes_per_sec)
 
     def _download_worker(self):
@@ -97,7 +98,7 @@ class SpeedTester:
         print(f"Starting continuous speed test with {self.threads} threads...", flush=True)
         print(f"URLs will be automatically switched every 20MB of download per thread.", flush=True)
         if self.rate_limiter:
-            print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec * 8 / (1024 * 1024):.2f} Mbps", flush=True)
+            print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec / (1024 * 1024):.2f} MB/s", flush=True)
         else:
             print("No speed limit set.", flush=True)
         
@@ -121,8 +122,9 @@ class SpeedTester:
                 download_diff = current_downloaded - last_total_downloaded
 
                 if time_diff > 0:
-                    current_speed_mbps = (download_diff * 8) / (time_diff * 1024 * 1024)
-                    print(f"Current speed: {current_speed_mbps:.2f} Mbps", flush=True)
+                    # 输出单位修改为 MB/s
+                    current_speed_mbs = (download_diff) / (time_diff * 1024 * 1024)
+                    print(f"Current speed: {current_speed_mbs:.2f} MB/s", flush=True)
                 
                 last_total_downloaded = current_downloaded
                 last_time = current_time
@@ -154,7 +156,8 @@ if __name__ == "__main__":
                         ],
                         help="URLs to download from.")
     parser.add_argument("--threads", type=int, default=4, help="Number of threads.")
-    parser.add_argument("--speed-limit", type=float, default=100.0, help="Speed limit in Mbps.")
+    # 修改单位为 MB/s，默认值为 10.0
+    parser.add_argument("--speed-limit", type=float, default=10.0, help="Speed limit in MB/s (Megabytes per second). Default is 10.0 MB/s.")
 
     args = parser.parse_args()
 
