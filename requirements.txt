@@ -1,2 +1,0 @@
-# 实际需要的Python包
-requests
