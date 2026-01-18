@@ -49,45 +49,44 @@ class SpeedTester:
 
     def _download_worker(self):
         chunk_size = 8192
-        retries = 3
-        backoff_factor = 0.5
+        # 每个线程下载多少字节后强制换网址 (例如 5MB)
+        switch_threshold = 5 * 1024 * 1024 
 
         while self.running:
-            url = random.choice(self.urls) # Randomly pick a URL from the list
+            url = random.choice(self.urls)
+            downloaded_from_this_url = 0
             try:
-                response = requests.get(url, stream=True, timeout=30)
+                # 增加 stream=True 以便分块处理和随时切换
+                response = requests.get(url, stream=True, timeout=15)
                 response.raise_for_status()
+                
                 for chunk in response.iter_content(chunk_size=chunk_size):
                     if not self.running:
                         break
+                    
                     if chunk:
-                        downloaded_this_chunk = len(chunk)
-                        
+                        chunk_len = len(chunk)
                         if self.rate_limiter:
-                            self.rate_limiter.acquire(downloaded_this_chunk)
+                            self.rate_limiter.acquire(chunk_len)
 
                         with self.lock:
-                            self.total_downloaded += downloaded_this_chunk
-                retries = 3 # Reset retries on successful download
-
-            except requests.exceptions.RequestException as e:
+                            self.total_downloaded += chunk_len
+                        
+                        downloaded_from_this_url += chunk_len
+                        
+                        # 达到阈值，跳出循环换下一个网址
+                        if downloaded_from_this_url >= switch_threshold:
+                            break
+                
+            except Exception:
+                # 忽略单个链接的错误，直接换下一个
                 if not self.running:
                     break
-                if retries > 0:
-                    print(f"Warning: Download error from {url}: {e}. Retrying in {backoff_factor * (2**(3-retries))} seconds...")
-                    time.sleep(backoff_factor * (2**(3-retries))) # Exponential backoff
-                    retries -= 1
-                else:
-                    print(f"Error: Max retries reached for {url}. Skipping this URL for now.")
-                    retries = 3 # Reset retries for next URL attempt
-            except Exception as e:
-                print(f"An unexpected error occurred: {e}")
-                if not self.running:
-                    break
-                time.sleep(5) # Wait a bit before retrying
+                time.sleep(0.1)
 
     def start_test(self):
         print(f"Starting continuous speed test with {self.threads} threads...")
+        print(f"URLs will be automatically switched every 5MB of download per thread.")
         if self.rate_limiter:
             print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec * 8 / (1024 * 1024):.2f} Mbps")
         
@@ -97,12 +96,11 @@ class SpeedTester:
             thread_list.append(thread)
             thread.start()
 
-        # Print real-time speed
         last_total_downloaded = 0
         last_time = time.time()
         try:
             while self.running:
-                time.sleep(1) # Update every second
+                time.sleep(1)
                 current_time = time.time()
                 with self.lock:
                     current_downloaded = self.total_downloaded
@@ -118,33 +116,18 @@ class SpeedTester:
                 last_time = current_time
 
         except KeyboardInterrupt:
-            print("\nStopping speed test...")
             self.running = False
 
         for thread in thread_list:
             thread.join()
 
-        end_time = time.time()
-        elapsed_time = end_time - self.start_time
-
-        if elapsed_time > 0:
-            speed_bps = (self.total_downloaded * 8) / elapsed_time
-            speed_mbps = speed_bps / (1024 * 1024)
-            print(f"\nTest finished.")
-            print(f"Total downloaded: {self.total_downloaded / (1024 * 1024):.2f} MB")
-            print(f"Elapsed time: {elapsed_time:.2f} seconds")
-            print(f"Average speed: {speed_mbps:.2f} Mbps")
-        else:
-            print("No data downloaded or test duration too short.")
-
 def signal_handler(sig, frame):
-    print("\nCtrl+C pressed. Exiting...")
     sys.exit(0)
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
-    parser = argparse.ArgumentParser(description="Continuous multi-threaded speed test tool with speed limit and multiple URLs.")
+    parser = argparse.ArgumentParser(description="Continuous speed test with automatic URL switching.")
     parser.add_argument("--urls", type=str, nargs="*", 
                         default=[
                             "https://p1.dailygn.com/obj/g-marketing-act-assets/2024_11_28_14_54_37/mv_1128_1080px.mp4",
@@ -159,9 +142,9 @@ if __name__ == "__main__":
                             "https://vd3.bdstatic.com/mda-pm9zn07ydwzhfw85/1080p/cae_h264/1702252000350219836/mda-pm9zn07ydwzhfw85.mp4",
                             "https://m1.ad.10010.com/small_video/uploadImg/1598021193891.jpg"
                         ],
-                        help="URLs to download from for speed test. Can provide multiple URLs.")
-    parser.add_argument("--threads", type=int, default=4, help="Number of concurrent download threads (default: 4).")
-    parser.add_argument("--speed-limit", type=float, default=100.0, help="Speed limit in Mbps (e.g., 8 for 8Mbps). Default is 100.0 Mbps.")
+                        help="URLs to download from.")
+    parser.add_argument("--threads", type=int, default=4, help="Number of threads.")
+    parser.add_argument("--speed-limit", type=float, default=100.0, help="Speed limit in Mbps.")
 
     args = parser.parse_args()
 
