@@ -19,55 +19,31 @@
 | `.dockerignore` | Docker 忽略文件，用于优化镜像构建速度。 |
 | `build_and_run_docker.sh` | **终极一键部署脚本**，用于下载仓库文件、构建 Docker 镜像和运行容器。 |
 
-## 终极一键部署和运行 (`build_and_run_docker.sh`)
+## 终极一键部署和运行
 
-这个脚本将自动完成下载文件、构建镜像和运行容器的所有步骤。
+您可以使用以下一行命令完成所有部署和启动工作。
 
-### 1. 下载脚本
-
-您可以通过以下方式下载并运行脚本。
-
-**使用标准 GitHub 链接：**
+### 1. 标准 GitHub 链接（推荐非大陆用户）
 
 ```bash
-wget https://raw.githubusercontent.com/SolitaryJune/speed_test/main/build_and_run_docker.sh
-chmod +x build_and_run_docker.sh
-./build_and_run_docker.sh [可选参数]
+wget -O build_and_run_docker.sh https://raw.githubusercontent.com/SolitaryJune/speed_test/main/build_and_run_docker.sh && chmod +x build_and_run_docker.sh && ./build_and_run_docker.sh --threads 8 --speed-limit 10
 ```
 
-**使用加速站点下载脚本（例如，Debian系统）：**
-
-如果您在中国大陆，可以使用加速站点下载脚本：
+### 2. 加速站点链接（推荐大陆用户）
 
 ```bash
-wget https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh
-chmod +x build_and_run_docker.sh
-./build_and_run_docker.sh [可选参数]
+wget -O build_and_run_docker.sh https://git.gushao.club/https://github.com/SolitaryJune/speed_test/raw/main/build_and_run_docker.sh && chmod +x build_and_run_docker.sh && ./build_and_run_docker.sh --threads 8 --speed-limit 10
 ```
 
-### 2. 运行测速容器
+## 运行说明
 
 脚本运行后，会自动下载所需的 `Dockerfile` 和 `speed_test_limited.py` 等文件，然后构建 Docker 镜像，并在后台启动测速容器。脚本会在启动容器后立即退出，测速将在后台持续进行。
-
-您可以将测速参数直接传递给 `./build_and_run_docker.sh` 脚本，这些参数将传递给内部的 Python 测速脚本。
 
 | 参数 | 描述 | 默认值 | 示例 |
 | :--- | :--- | :--- | :--- |
 | `--urls` | 测速源 URL(s) | 默认使用内置的多个测速源 | `--urls https://example.com/file1.zip` |
 | `--threads` | 并发下载线程数 | `4` | `--threads 8` |
 | `--speed-limit` | 下载速度限制（MB/s） | `10.0` | `--speed-limit 5` |
-
-**示例 1: 使用默认设置运行 (默认测速源，限速 10.0 MB/s，持续运行)**
-
-```bash
-./build_and_run_docker.sh
-```
-
-**示例 2: 设置 8 线程，限速 5 MB/s，并指定自定义测速源，持续运行**
-
-```bash
-./build_and_run_docker.sh --threads 8 --speed-limit 5 --urls https://example.com/file.zip
-```
 
 ## 容器管理
 
