@@ -60,8 +60,8 @@ class SpeedTester:
     def _download_worker(self):
         # 增大 chunk_size 减少系统调用开销
         chunk_size = 64 * 1024 
-        # 增加切换阈值到 20MB，减少连接握手损耗
-        switch_threshold = 20 * 1024 * 1024 
+        # 增加切换阈值到 500MB，减少连接握手损耗
+        switch_threshold = 500 * 1024 * 1024 
 
         while self.running:
             url = random.choice(self.urls)
@@ -96,7 +96,7 @@ class SpeedTester:
 
     def start_test(self):
         print(f"Starting continuous speed test with {self.threads} threads...", flush=True)
-        print(f"URLs will be automatically switched every 20MB of download per thread.", flush=True)
+        print(f"URLs will be automatically switched every 500MB of download per thread.", flush=True)
         if self.rate_limiter:
             print(f"Speed limit set to {self.rate_limiter.rate_limit_bytes_per_sec / (1024 * 1024):.2f} MB/s", flush=True)
         else:
