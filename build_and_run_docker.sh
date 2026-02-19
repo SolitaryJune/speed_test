@@ -7,7 +7,7 @@
 REPO_OWNER="SolitaryJune"
 REPO_NAME="speed_test"
 BRANCH="main"
-RAW_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
+RAW_URL="https://git.gushao.club/https://github.com/${REPO_OWNER}/${REPO_NAME}/raw/${BRANCH}"
 
 # 文件列表
 FILES=("Dockerfile" "speed_test_limited.py" ".dockerignore")
