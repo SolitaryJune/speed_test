@@ -15,7 +15,7 @@
 | 文件名 | 描述 |
 | :--- | :--- |
 | `speed_test_limited.py` | 核心 Python 脚本，包含多线程下载和基于令牌桶算法的限速逻辑。 |
-| `Dockerfile` | Docker 镜像构建文件，基于 `python:3.9-slim-buster`。 |
+| `Dockerfile` | Docker 镜像构建文件，基于 `python:3.9-slim-buster`，并已配置使用国内 Docker 镜像加速源和 pip 镜像源。 |
 | `.dockerignore` | Docker 忽略文件，用于优化镜像构建速度。 |
 | `build_and_run_docker.sh` | **终极一键部署脚本**，用于下载仓库文件、构建 Docker 镜像和运行容器。 |
 
