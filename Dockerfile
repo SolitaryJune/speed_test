@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image, using a domestic mirror
-FROM docker.m.daocloud.io/library/python:3.9-slim-buster
+FROM docker.gushao.club/library/python:3.9-slim-buster
 
 # Set the working directory in the container
 WORKDIR /app
