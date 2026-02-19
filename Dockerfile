@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image, using a domestic mirror
-FROM docker.xuanyuan.me/library/python:3.9-slim-buster
+FROM docker.1ms.run/library/python:3.9-slim-buster
 
 # Set the working directory in the container
 WORKDIR /app
