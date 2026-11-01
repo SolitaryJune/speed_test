@@ -47,12 +47,33 @@ fi
 
 download_file() {
     local FILE="$1"
-    # -f: HTTP 错误码返回非零; -L: 跟随重定向; --retry: 自动重试
-    if curl -fsSL --retry 2 --connect-timeout 10 -o "${FILE}" "${RAW_URL}/${FILE}"; then
+    # -f: HTTP 错误码返回非零; -L: 跟随重定向; --retry-all-errors: 连接重置等错误也重试
+    for i in 1 2; do
+        if curl -fsSL --retry 2 --retry-all-errors --connect-timeout 10 -o "${FILE}" "${RAW_URL}/${FILE}"; then
+            return 0
+        fi
+        sleep 1
+    done
+    echo "直连 GitHub 失败，尝试代理下载 ${FILE} ..."
+    for i in 1 2; do
+        if curl -fsSL --retry 2 --retry-all-errors --connect-timeout 10 -o "${FILE}" "${PROXY_RAW_URL}/${FILE}"; then
+            return 0
+        fi
+        sleep 1
+    done
+    return 1
+}
+
+# .dockerignore 只是构建上下文白名单，无需联网：下载失败时直接本地生成
+ensure_dockerignore() {
+    if download_file ".dockerignore" && verify_file ".dockerignore"; then
         return 0
     fi
-    echo "直连 GitHub 失败，尝试代理下载 ${FILE} ..."
-    curl -fsSL --retry 2 --connect-timeout 10 -o "${FILE}" "${PROXY_RAW_URL}/${FILE}"
+    echo "警告: .dockerignore 下载失败，使用本地生成的白名单。"
+    printf '*
+!Dockerfile
+!speed_test_limited.py
+' > ".dockerignore"
 }
 
 verify_file() {
@@ -70,12 +91,18 @@ verify_file() {
 echo "--- 1. 下载所需文件 ---"
 for FILE in "${FILES[@]}"; do
     echo "正在下载 ${FILE}..."
+    if [ "${FILE}" = ".dockerignore" ]; then
+        ensure_dockerignore
+        continue
+    fi
     if ! download_file "${FILE}"; then
         echo "错误: 下载 ${FILE} 失败。请检查网络连接或仓库路径。"
+        rm -f "${FILE}"
         exit 1
     fi
     if ! verify_file "${FILE}"; then
         echo "错误: ${FILE} 内容校验失败（可能被代理劫持或返回了错误页）。"
+        rm -f "${FILE}"
         exit 1
     fi
 done
