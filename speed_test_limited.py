@@ -19,29 +19,26 @@ class RateLimiter:
         if self.rate_limit_bytes_per_sec <= 0:
             return True
             
-        with self.lock:
-            now = time.time()
-            time_passed = now - self.last_refill_time
-            self.last_refill_time = now
+        while True:
+            with self.lock:
+                now = time.time()
+                time_passed = now - self.last_refill_time
+                self.last_refill_time = now
 
-            # 补充令牌
-            self.current_bytes_available = min(self.bucket_capacity, \
-                                               self.current_bytes_available + time_passed * self.rate_limit_bytes_per_sec)
+                # 补充令牌
+                self.current_bytes_available = min(self.bucket_capacity, \
+                                                   self.current_bytes_available + time_passed * self.rate_limit_bytes_per_sec)
 
-            if self.current_bytes_available >= bytes_needed:
-                self.current_bytes_available -= bytes_needed
-                return True
-            else:
-                # 令牌不足，计算等待时间
-                bytes_missing = bytes_needed - self.current_bytes_available
-                wait_time = bytes_missing / self.rate_limit_bytes_per_sec
-                
-                # 释放锁进行等待，避免阻塞其他线程补充令牌
-                self.current_bytes_available = 0
-                
-            # 在锁外等待
+                if self.current_bytes_available >= bytes_needed:
+                    self.current_bytes_available -= bytes_needed
+                    return True
+                else:
+                    # 令牌不足，计算等待时间（不清零余额，令牌在等待期间会继续累积）
+                    bytes_missing = bytes_needed - self.current_bytes_available
+                    wait_time = bytes_missing / self.rate_limit_bytes_per_sec
+
+            # 在锁外等待，醒来后重新检查令牌，确保总流量不超过限速值
             time.sleep(wait_time)
-            return True
 
 class SpeedTester:
     def __init__(self, urls, threads, speed_limit_mbs=None):

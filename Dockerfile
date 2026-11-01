@@ -11,7 +11,7 @@ ENV PYTHONUNBUFFERED=1
 COPY speed_test_limited.py .
 
 # Install requests library using a domestic pip mirror
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple requests
+RUN (pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ requests || pip install --no-cache-dir -i https://mirrors.cloud.tencent.com/pypi/simple requests || pip install --no-cache-dir requests)
 
 # Use ENTRYPOINT to ensure arguments are passed to the script
 ENTRYPOINT ["python", "speed_test_limited.py"]
